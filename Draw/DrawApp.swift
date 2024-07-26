@@ -9,8 +9,8 @@ import SwiftUI
 
 @main
 struct DrawApp: App {
-    @State private var data = DrawController()
-
+    @State var data = DrawController()
+    
     var body: some Scene {
         WindowGroup {
             DrawView()

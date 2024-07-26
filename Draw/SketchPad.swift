@@ -9,18 +9,27 @@ import SwiftUI
 
 struct SketchPad: View {
     @Bindable var data: DrawController
+    @Environment(\.scenePhase) var scenePhase
     
     var body: some View {
         sketch
-        .onTapGesture {
-            data.clearInvisibleLines()
-        }
-        .undo(lines: $data.lines, lastLines: $data.lastLines)
-        .redo(lines: $data.lines, lastLines: $data.lastLines)
-        .clear(lines: $data.lines, lastLines: $data.lastLines)
-        .settingsToggle(settingsShown: $data.settingsShown)
-        .gesture(drawGesture)
-        .ignoresSafeArea()
+            .onTapGesture {
+                data.clearInvisibleLines()
+            }
+            .undo(data: data)
+            .redo(data: data)
+            .clear(data: data)
+            .settingsToggle(settingsShown: $data.settingsShown)
+            .gesture(drawGesture)
+            .ignoresSafeArea()
+        
+            .onChange(of: scenePhase) { _, newPhase in
+                if newPhase == .active {
+                    data.open()
+                } else if newPhase == .inactive {
+                    data.save("Lines", "Lastlines", "Line Color", "Line Width")
+                }
+            }
     }
     
     private var sketch: some View {
@@ -45,6 +54,7 @@ struct SketchPad: View {
                     data.lines[lastIndex].points.append(value.location)
                     data.clearInvisibleLines()
                 }
+                data.save("Lines")
             }
     }
 }

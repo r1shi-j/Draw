@@ -48,7 +48,7 @@ struct SettingsView: View {
     
     var undoButton: some View {
         Button(action: {
-            Undo(lines: $data.lines, lastLines: $data.lastLines).action()
+            Undo(data: data).action()
         }, label: {
             Image(systemName: "arrow.uturn.backward.circle")
         })
@@ -58,7 +58,7 @@ struct SettingsView: View {
     
     var redoButton: some View {
         Button(action: {
-            Redo(lines: $data.lines, lastLines: $data.lastLines).action()
+            Redo(data: data).action()
         }, label: {
             Image(systemName: "arrow.uturn.forward.circle")
         })
@@ -102,7 +102,7 @@ struct SettingsView: View {
                 .symbolEffect(.bounce, value: data.showWidths)
                 .overlay {
                     Text("\(Int(data.lineWidth))")
-                        .font(.caption2)
+                        .font(.caption2.width(.condensed))
                 }
         })
     }
@@ -124,6 +124,7 @@ struct SettingsView: View {
                 Button(action: {
                     withAnimation(.snappy) {
                         data.lineColor = color
+                        data.save("Line Color")
                     }
                 }, label: {
                     Image(systemName: "paintbrush\(color == data.lineColor ? ".fill" : "")")
@@ -149,6 +150,9 @@ struct SettingsView: View {
         .frame(maxWidth: 330)
         .offset(y: -29)
         .opacity(data.showWidths ? 1 : 0)
+        .onChange(of: data.lineWidth) {
+            data.save("Line Width")
+        }
     }
     
     // MARK: - Gestures

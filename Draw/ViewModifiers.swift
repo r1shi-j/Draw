@@ -8,14 +8,14 @@
 import SwiftUI
 
 extension View {
-    func undo(lines: Binding<[Line]>, lastLines: Binding<[Line]>) -> some View {
-        modifier(Undo(lines: lines, lastLines: lastLines))
+    func undo(data: DrawController) -> some View {
+        modifier(Undo(data:data))
     }
-    func redo(lines: Binding<[Line]>, lastLines: Binding<[Line]>) -> some View {
-        modifier(Redo(lines: lines, lastLines: lastLines))
+    func redo(data: DrawController) -> some View {
+        modifier(Redo(data:data))
     }
-    func clear(lines: Binding<[Line]>, lastLines: Binding<[Line]>) -> some View {
-        modifier(Clear(lines: lines, lastLines: lastLines))
+    func clear(data: DrawController) -> some View {
+        modifier(Clear(data:data))
     }
     func settingsToggle(settingsShown: Binding<Bool>) -> some View {
         modifier(ToggleSettings(settingsShown: settingsShown))
@@ -23,8 +23,7 @@ extension View {
 }
 
 struct Undo: ViewModifier {
-    @Binding var lines: [Line]
-    @Binding var lastLines: [Line]
+    @Bindable var data: DrawController
     
     func body(content: Content) -> some View {
         content
@@ -35,16 +34,16 @@ struct Undo: ViewModifier {
     
     func action() {
         withAnimation(.easeInOut(duration: 3)) {
-            guard let lastLine = lines.last else { return }
-            lastLines.append(lastLine)
-            lines.removeLast()
+            guard let lastLine = data.lines.last else { return }
+            data.lastLines.append(lastLine)
+            data.lines.removeLast()
         }
+        data.save("Lines", "Lastlines")
     }
 }
 
 struct Redo: ViewModifier {
-    @Binding var lines: [Line]
-    @Binding var lastLines: [Line]
+    @Bindable var data: DrawController
     
     func body(content: Content) -> some View {
         content
@@ -55,25 +54,25 @@ struct Redo: ViewModifier {
     
     func action() {
         withAnimation(.easeInOut(duration: 3)) {
-            guard let lastUndoneLine = lastLines.last else { return }
-            lines.append(lastUndoneLine)
-            lastLines.removeLast()
+            guard let lastUndoneLine = data.lastLines.last else { return }
+            data.lines.append(lastUndoneLine)
+            data.lastLines.removeLast()
         }
+        data.save("Lines", "Lastlines")
     }
 }
 
-
 struct Clear: ViewModifier {
-    @Binding var lines: [Line]
-    @Binding var lastLines: [Line]
+    @Bindable var data: DrawController
     
     func body(content: Content) -> some View {
         content
             .onTapGesture(count: 10) {
                 withAnimation(.easeInOut(duration: 3)) {
-                    lines.removeAll()
-                    lastLines.removeAll()
+                    data.lines.removeAll()
+                    data.lastLines.removeAll()
                 }
+                data.save("Lines", "Lastlines")
             }
     }
 }
@@ -115,5 +114,17 @@ extension Color {
             blue:  Double(b) / 255,
             opacity: Double(a) / 255
         )
+    }
+}
+
+struct AnyEncodable: Encodable {
+    private let _encode: (Encoder) throws -> Void
+
+    init<T: Encodable>(_ wrapped: T) {
+        _encode = wrapped.encode
+    }
+
+    func encode(to encoder: Encoder) throws {
+        try _encode(encoder)
     }
 }

@@ -13,9 +13,9 @@ class DrawController {
     
     var lines: [Line] { get { model.lines } set { model.lines = newValue } }
     var lastLines: [Line] { get { model.lastLines } set { model.lastLines = newValue } }
-
-    var lineWidth: Double { get { model.lineWidth } set { model.lineWidth = newValue } }
+    
     var lineColor: String { get { model.lineColor } set { model.lineColor = newValue } }
+    var lineWidth: Double { get { model.lineWidth } set { model.lineWidth = newValue } }
     
     var selectedColorAsColor: Color { convert(hex: lineColor) }
     
@@ -40,4 +40,16 @@ class DrawController {
     let colors: [String] = ["000000", "007AFF", "4CD964", "FF9500", "FFCC00", "FF3B30", "FFFFFF"]
     // black, blue, green, orange, yellow, red, white
     let grayHex = "8f8e94"
+    
+    func save(_ what: String...) {
+        var list: [String] = []
+        for i in what {
+            list.append(i)
+        }
+        model.save(list)
+    }
+    
+    func open() {
+        model.open()
+    }
 }

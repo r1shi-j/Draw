@@ -28,17 +28,18 @@ struct Undo: ViewModifier {
     func body(content: Content) -> some View {
         content
             .onTapGesture(count: 2) {
-                action()
+                data.undo()
             }
     }
     
-    func action() {
-        withAnimation(.easeInOut(duration: 3)) {
-            guard let lastLine = data.lines.last else { return }
-            data.lastLines.append(lastLine)
-            data.lines.removeLast()
-        }
-        data.save("Lines", "Lastlines")
+    var undoButton: some View {
+        Button(action: {
+            data.undo()
+        }, label: {
+            Image(systemName: "arrow.uturn.backward.circle")
+        })
+        .disabled(data.lines.count <= 1)
+        .animation(nil, value: data.lines)
     }
 }
 
@@ -48,17 +49,18 @@ struct Redo: ViewModifier {
     func body(content: Content) -> some View {
         content
             .onTapGesture(count: 3) {
-                action()
+                data.redo()
             }
     }
     
-    func action() {
-        withAnimation(.easeInOut(duration: 3)) {
-            guard let lastUndoneLine = data.lastLines.last else { return }
-            data.lines.append(lastUndoneLine)
-            data.lastLines.removeLast()
-        }
-        data.save("Lines", "Lastlines")
+    var redoButton: some View {
+        Button(action: {
+            data.redo()
+        }, label: {
+            Image(systemName: "arrow.uturn.forward.circle")
+        })
+        .disabled(data.lastLines.isEmpty)
+        .animation(nil, value: data.lastLines)
     }
 }
 
@@ -87,44 +89,5 @@ struct ToggleSettings: ViewModifier {
                     settingsShown.toggle()
                 }
             }
-    }
-}
-
-extension Color {
-    init(hex: String) {
-        let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
-        var int: UInt64 = 0
-        Scanner(string: hex).scanHexInt64(&int)
-        let a, r, g, b: UInt64
-        switch hex.count {
-        case 3: // RGB (12-bit)
-            (a, r, g, b) = (255, (int >> 8) * 17, (int >> 4 & 0xF) * 17, (int & 0xF) * 17)
-        case 6: // RGB (24-bit)
-            (a, r, g, b) = (255, int >> 16, int >> 8 & 0xFF, int & 0xFF)
-        case 8: // ARGB (32-bit)
-            (a, r, g, b) = (int >> 24, int >> 16 & 0xFF, int >> 8 & 0xFF, int & 0xFF)
-        default:
-            (a, r, g, b) = (1, 1, 1, 0)
-        }
-
-        self.init(
-            .sRGB,
-            red: Double(r) / 255,
-            green: Double(g) / 255,
-            blue:  Double(b) / 255,
-            opacity: Double(a) / 255
-        )
-    }
-}
-
-struct AnyEncodable: Encodable {
-    private let _encode: (Encoder) throws -> Void
-
-    init<T: Encodable>(_ wrapped: T) {
-        _encode = wrapped.encode
-    }
-
-    func encode(to encoder: Encoder) throws {
-        try _encode(encoder)
     }
 }

@@ -16,6 +16,7 @@
 		5BBF41002C52802100C7F109 /* DrawController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BBF40FF2C52802100C7F109 /* DrawController.swift */; };
 		5BBF41022C52802700C7F109 /* Draw.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BBF41012C52802700C7F109 /* Draw.swift */; };
 		5BBF41042C52804000C7F109 /* ViewModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BBF41032C52804000C7F109 /* ViewModifiers.swift */; };
+		5BDB67CD2C53E44000CBF5EA /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BDB67CC2C53E44000CBF5EA /* Extensions.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -29,6 +30,7 @@
 		5BBF40FF2C52802100C7F109 /* DrawController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrawController.swift; sourceTree = "<group>"; };
 		5BBF41012C52802700C7F109 /* Draw.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Draw.swift; sourceTree = "<group>"; };
 		5BBF41032C52804000C7F109 /* ViewModifiers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModifiers.swift; sourceTree = "<group>"; };
+		5BDB67CC2C53E44000CBF5EA /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -62,12 +64,13 @@
 			isa = PBXGroup;
 			children = (
 				5BBF40EB2C527F5400C7F109 /* DrawApp.swift */,
-				5BBF40FD2C52801A00C7F109 /* DrawView.swift */,
-				5BBF40FF2C52802100C7F109 /* DrawController.swift */,
 				5BBF41012C52802700C7F109 /* Draw.swift */,
+				5BBF40FF2C52802100C7F109 /* DrawController.swift */,
+				5BBF40FD2C52801A00C7F109 /* DrawView.swift */,
 				5BBF40F92C52800400C7F109 /* SketchPad.swift */,
 				5BBF40FB2C52801500C7F109 /* SettingsView.swift */,
 				5BBF41032C52804000C7F109 /* ViewModifiers.swift */,
+				5BDB67CC2C53E44000CBF5EA /* Extensions.swift */,
 				5BBF40EF2C527F5600C7F109 /* Assets.xcassets */,
 				5BBF40F12C527F5600C7F109 /* Preview Content */,
 			);
@@ -155,6 +158,7 @@
 				5BBF41022C52802700C7F109 /* Draw.swift in Sources */,
 				5BBF40FA2C52800400C7F109 /* SketchPad.swift in Sources */,
 				5BBF40FE2C52801A00C7F109 /* DrawView.swift in Sources */,
+				5BDB67CD2C53E44000CBF5EA /* Extensions.swift in Sources */,
 				5BBF41042C52804000C7F109 /* ViewModifiers.swift in Sources */,
 				5BBF40FC2C52801500C7F109 /* SettingsView.swift in Sources */,
 				5BBF41002C52802100C7F109 /* DrawController.swift in Sources */,

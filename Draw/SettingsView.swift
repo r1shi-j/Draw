@@ -15,12 +15,14 @@ struct SettingsView: View {
             VStack {
                 mainSettings
                 ZStack {
-                    colorSettings
-                    widthSettings
+                    colorSettingsView
+                    widthSettingsView
+                    backgroundColorSettingsView
                 }
+                .offset(y: -32)
             }
             .position(x: geometry.size.width / 2 , y: 14)
-            .offset(y: (data.settingsShown ? 0 : -200))
+            .offset(y: (data.showSettings ? 0 : -200))
             .offset(y: data.y)
             .transition(.slide)
             .gesture(swipeGesture)
@@ -33,55 +35,41 @@ struct SettingsView: View {
                 .frame(maxWidth: 371, maxHeight: data.height)
                 .offset(y: data.offset)
                 .foregroundColor(.black)
-            HStack(spacing: 40) {
-                undoButton
-                redoButton
+            HStack(spacing: 42) {
+                Undo(data: data).undoButton
+                Redo(data: data).redoButton
                 colorButton
                 widthButton
-                settingsButton
+                backgroundColorButton
             }
+            .frame(maxWidth: 308)
             .font(.title2)
         }
     }
     
     // MARK: - Menu Buttons
     
-    var undoButton: some View {
-        Button(action: {
-            Undo(data: data).action()
-        }, label: {
-            Image(systemName: "arrow.uturn.backward.circle")
-        })
-        .disabled(data.lines.isEmpty)
-        .animation(nil, value: data.lines)
-    }
-    
-    var redoButton: some View {
-        Button(action: {
-            Redo(data: data).action()
-        }, label: {
-            Image(systemName: "arrow.uturn.forward.circle")
-        })
-        .disabled(data.lastLines.isEmpty)
-        .animation(nil, value: data.lastLines)
-    }
-    
     var colorButton: some View {
         Button(action: {
             withAnimation(.bouncy(duration: 0.5)) {
-                data.showingSecondaryView.toggle()
-                if data.showWidths {
-                    data.showWidths.toggle()
-                    data.showingSecondaryView = true
+                if data.showColorsView {
+                    data.showingSecondaryView = false
+                } else {
+                    if data.showingSecondaryView {
+                        data.showWidthsView = false
+                        data.showBackgroundColorView = false
+                    } else {
+                        data.showingSecondaryView = true
+                    }
                 }
-                data.showColors.toggle()
+                data.showColorsView.toggle()
             }
         }, label: {
             Image(systemName: "paintpalette")
                 .font(.title)
-                .symbolRenderingMode(data.showColors ? .multicolor : .none)
-                .tint(data.showColors ? .none : (data.selectedColorAsColor == .black ? .gray : data.selectedColorAsColor))
-                .symbolEffect(.bounce, value: data.showColors)
+                .symbolRenderingMode(data.showColorsView ? .multicolor : .none)
+                .tint(data.showColorsView ? .none : (data.selectedColorAsColor == .black ? .gray : data.selectedColorAsColor))
+                .symbolEffect(.bounce, value: data.showColorsView)
                 .offset(y:10)
         })
     }
@@ -89,36 +77,54 @@ struct SettingsView: View {
     var widthButton: some View {
         Button(action: {
             withAnimation(.bouncy(duration: 0.5)) {
-                data.showingSecondaryView.toggle()
-                if data.showColors {
-                    data.showColors.toggle()
-                    data.showingSecondaryView = true
+                if data.showWidthsView {
+                    data.showingSecondaryView = false
+                } else {
+                    if data.showingSecondaryView {
+                        data.showColorsView = false
+                        data.showBackgroundColorView = false
+                    } else {
+                        data.showingSecondaryView = true
+                    }
                 }
-                data.showWidths.toggle()
+                data.showWidthsView.toggle()
             }
         }, label: {
             Image(systemName: "rectangle.portrait.arrowtriangle.2.inward")
-                .symbolRenderingMode(data.showWidths ? .hierarchical : .none)
-                .symbolEffect(.bounce, value: data.showWidths)
+                .symbolEffect(.bounce, value: data.showWidthsView)
                 .overlay {
                     Text("\(Int(data.lineWidth))")
                         .font(.caption2.width(.condensed))
                 }
+                .tint(data.showWidthsView ? .none : (data.selectedColorAsColor == .black ? .gray : data.selectedColorAsColor))
         })
     }
     
-    var settingsButton: some View {
+    var backgroundColorButton: some View {
         Button(action: {
-            // TODO: - Logic
+            withAnimation(.bouncy(duration: 0.5)) {
+                if data.showBackgroundColorView {
+                    data.showingSecondaryView = false
+                } else {
+                    if data.showingSecondaryView {
+                        data.showColorsView = false
+                        data.showWidthsView = false
+                    } else {
+                        data.showingSecondaryView = true
+                    }
+                }
+                data.showBackgroundColorView.toggle()
+            }
         }, label: {
-            Image(systemName: "gearshape")
+            Image(systemName: "paintbrush\(data.showBackgroundColorView ? "" : ".fill")")
+                .symbolEffect(.bounce, value: data.showBackgroundColorView)
+                .tint(data.selectedBackgroundColorAsColor)
         })
-        .disabled(true)
     }
     
-    // MARK: - Color Settings
+    // MARK: - Color Settings View
     
-    var colorSettings: some View {
+    var colorSettingsView: some View {
         HStack {
             ForEach(data.colors, id:\.self) { color in
                 Button(action: {
@@ -127,32 +133,44 @@ struct SettingsView: View {
                         data.save("Line Color")
                     }
                 }, label: {
-                    Image(systemName: "paintbrush\(color == data.lineColor ? ".fill" : "")")
-                        .foregroundColor(data.convert(hex:color) == .black ? data.convert(hex: data.grayHex) : data.convert(hex: color))
+                    Image(systemName: "paintbrush.pointed\(color == data.lineColor ? ".fill" : "")")
+                        .foregroundColor(data.convertHexToColor(hex:color) == .black ? data.convertHexToColor(hex: data.grayHex) : data.convertHexToColor(hex: color))
                         .symbolEffect(.bounce, options: .nonRepeating, isActive: data.lineColor == color)
                         .contentTransition(.interpolate)
                 })
-                .padding(.horizontal, 10)
+                .padding(.horizontal, 9)
             }
         }
-        .offset(y: -29)
-        .opacity(data.showColors ? 1 : 0)
+        .frame(maxWidth: 308)
+        .opacity(data.showColorsView ? 1 : 0)
     }
     
-    // MARK: - Width Settings
+    // MARK: - Width Settings View
     
-    var widthSettings: some View {
+    var widthSettingsView: some View {
         Slider(
             value: $data.lineWidth,
-            in: 1...20,
+            in: 1...25,
             step: 1
         )
-        .frame(maxWidth: 330)
-        .offset(y: -29)
-        .opacity(data.showWidths ? 1 : 0)
+        .frame(maxWidth: 308)
+        .opacity(data.showWidthsView ? 1 : 0)
         .onChange(of: data.lineWidth) {
             data.save("Line Width")
         }
+    }
+    
+    // MARK: - Background Color Settings View
+
+    var backgroundColorSettingsView: some View {
+        ColorPicker("Background Color", selection: $data.selectedBackgroundColorAsColor, supportsOpacity: false)
+            .frame(maxWidth: 308)
+            .font(.caption.bold())
+            .foregroundColor(data.selectedBackgroundColorAsColor)
+            .opacity(data.showBackgroundColorView ? 1 : 0)
+            .onChange(of: data.backgroundColor) {
+                data.save("Background Color")
+            }
     }
     
     // MARK: - Gestures
@@ -170,10 +188,11 @@ struct SettingsView: View {
                 if abs(offset.translation.height) > (data.showingSecondaryView ? 50 : 30)
                     && offset.location.y <= (data.showingSecondaryView ? 150 : 100) {
                     withAnimation(.bouncy(duration: 2)) {
-                        data.showColors = false
-                        data.showWidths = false
+                        data.showColorsView = false
+                        data.showWidthsView = false
+                        data.showBackgroundColorView = false
                         data.showingSecondaryView = false
-                        data.settingsShown = false
+                        data.showSettings = false
                         data.y = 0
                     }
                 } else {

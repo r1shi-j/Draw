@@ -7,78 +7,100 @@
 
 import Foundation
 
+struct Line: Equatable, Codable {
+    var points: [CGPoint]
+    var color: String
+    var width: Double
+}
+
 struct Draw: Codable {
     var lines = [Line]()
     var lastLines = [Line]()
     
     var lineColor = "000000"
     var lineWidth = 3.0
+    var backgroundColor = "D2D2D4"
     
-    var settingsShown = true
+    var showSettings = true
     var showingSecondaryView = false
-    var showColors = false
-    var showWidths = false
+    var showColorsView = false
+    var showWidthsView = false
+    var showBackgroundColorView = false
     
     var y: CGFloat = 0
-    
-    mutating func clearInvisibleLines() {
-        for line in lines  {
-            if line.points.count == 1 {
-                let index = lines.firstIndex { $0.points.count == 1 }
-                lines.remove(at: index!)
-            }
-        }
+        
+    mutating func createNewLine() {
+        let newLine = Line(points: [], color: lineColor, width: lineWidth)
+        lines.append(newLine)
     }
     
-    func save(_ what: [String]) {
-        let encoder = JSONEncoder()
-        let storage = UserDefaults.standard
-        
+    mutating func reindexLines() {
+        lines.removeAll { $0.points == [] }
+        lines.removeAll { $0.points.count == 1 }
+        lastLines.removeAll { $0.points == [] }
+        lastLines.removeAll { $0.points.count == 1 }
+        createNewLine()
+    }
+    
+    mutating func undo() {
+        if lines.count >= 2 {
+            lines.removeAll { $0.points == [] }
+            lastLines.append(lines.last!)
+            lines.removeLast()
+            createNewLine()
+            save(["Lines", "Lastlines"])
+        }
+        // else if lines.count == 1 { if lines.first?.points == [] { } else { exit(0) /* FIXME: find out when called.*/ } } else { }
+    }
+    
+    mutating func redo() {
+        lines.removeAll { $0.points == [] }
+        lines.append(lastLines.last!)
+        lastLines.removeLast()
+        createNewLine()
+        save(["Lines", "Lastlines"])
+    }
+    
+    func save(_ what: [String] = ["Lines"]) {
         let itemsToSave: [String: AnyEncodable] = [
             "Lines": AnyEncodable(lines),
             "Lastlines": AnyEncodable(lastLines),
             "Line Color": AnyEncodable(lineColor),
-            "Line Width": AnyEncodable(lineWidth)
+            "Line Width": AnyEncodable(lineWidth),
+            "Background Color": AnyEncodable(backgroundColor)
         ]
-
+        
         for item in what {
             if let value = itemsToSave[item] {
-                if let encoded = try? encoder.encode(value) {
-                    storage.set(encoded, forKey: "SavedData: \(item)")
-                }
+                encode(value, to: "SavedData: \(item)")
             }
         }
     }
     
+    private func encode<T: Encodable>(_ value: T, to key: String) {
+        let encoder = JSONEncoder()
+        let storage = UserDefaults.standard
+        
+        if let encoded = try? encoder.encode(value) {
+            storage.set(encoded, forKey: key)
+        }
+    }
+    
     mutating func open() {
+        lines = decode(from: "SavedData: Lines") ?? []
+        lastLines = decode(from: "SavedData: Lastlines") ?? []
+        lineColor = decode(from: "SavedData: Line Color") ?? ""
+        lineWidth = decode(from: "SavedData: Line Width") ?? 0.0
+        backgroundColor = decode(from: "SavedData: Background Color") ?? ""
+    }
+    
+    private func decode<T: Decodable>(from key: String) -> T? {
         let decoder = JSONDecoder()
         let storage = UserDefaults.standard
         
-        if let linedata = storage.data(forKey: "SavedData: Lines") {
-            if let decoded = try? decoder.decode([Line].self, from: linedata) {
-                lines = decoded
-            }
+        if let data = storage.data(forKey: key) {
+            return try? decoder.decode(T.self, from: data)
         }
-        if let lastlinedata = storage.data(forKey: "SavedData: Lastlines") {
-            if let decoded = try? decoder.decode([Line].self, from: lastlinedata) {
-                lastLines = decoded
-            }
-        }
-        if let linecolordata = storage.data(forKey: "SavedData: Line Color") {
-            if let decoded = try? decoder.decode(String.self, from: linecolordata) {
-                lineColor = decoded
-            }
-        }
-        if let linewidthdata = storage.data(forKey: "SavedData: Line Width") {
-            if let decoded = try? decoder.decode(Double.self, from: linewidthdata) {
-                lineWidth = decoded
-            }
-        }
+        return nil
     }
-}
-
-struct Line: Equatable, Codable {
-    var points: [CGPoint]
-    var color: String
-    var width: Double
 }

@@ -14,5 +14,6 @@ Features:
     - or by swiping up to disappear
    
 Screenshots:
+
 <img src="Screenshots/NormalTest.PNG" width="350"/> <img src="Screenshots/Fullscreen.PNG" width="350"/> <br>
 <img src="Screenshots/LineColor.PNG" width="300"/><img src="Screenshots/LineWidth.PNG" width="300"/> <img src="Screenshots/BackgroundColor.PNG" width="300"/>

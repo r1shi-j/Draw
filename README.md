@@ -1,4 +1,6 @@
-A minimal drawing app used to create random sketches.
+<h1>Draw</h1>
+
+<h3>A minimal drawing app used to create random sketches.</h3>
 
 Features:
   - customisable pen color from a list of preset colors
@@ -12,8 +14,5 @@ Features:
     - or by swiping up to disappear
    
 Screenshots:
-![IMG_1889](https://github.com/user-attachments/assets/fc342b2a-4218-4689-975b-e0e4099afe7a)
-![IMG_1888](https://github.com/user-attachments/assets/9fc18e1c-bb2a-4f1b-99e9-2ed923f28505)
-![IMG_1887](https://github.com/user-attachments/assets/4a64648a-28e8-40be-beb7-4593ee5d8582)
-![IMG_1885](https://github.com/user-attachments/assets/2871b4f5-131b-4e6e-b629-76cc4d9b502f)
-![IMG_1884](https://github.com/user-attachments/assets/682056ed-a455-4128-a1e2-8e96a38b89a7)
+<img src="Screenshots/NormalTest.PNG" width="350"/> <img src="Screenshots/Fullscreen.PNG" width="350"/> <br>
+<img src="Screenshots/LineColor.PNG" width="300"/><img src="Screenshots/LineWidth.PNG" width="300"/> <img src="Screenshots/BackgroundColor.PNG" width="300"/>
